@@ -60,21 +60,24 @@ function App() {
       LineWidth,
     });
   const generateAuldosBroder = () => {
-      const l = initLabyrinth(height, width);
-      const newCells = auldosBroderGenerator(l);
-      setCells(newCells);
-    }
+    const l = initLabyrinth(height, width);
+    const newCells = auldosBroderGenerator(l);
+    setCells(newCells);
+  };
   return (
     <>
       <div className={`App ${Classes.DARK}`}>
         <Navbar>
           <Navbar.Group align={Alignment.LEFT}>
             <Navbar.Heading>Maze builder</Navbar.Heading>
+            <Button onClick={generateAuldosBroder} icon="function">
+              Aldous-Broder algorythm
+            </Button>
           </Navbar.Group>
           <Navbar.Group align={Alignment.RIGHT}>
             <Button icon="print" minimal={true} onClick={print} />
             <Navbar.Divider />
-            <Button icon="menu" minimal={true} onClick={toggleHandler} />
+            <Button icon="cog" minimal={true} onClick={toggleHandler} />
           </Navbar.Group>
         </Navbar>
         <div className="App-body">
@@ -115,9 +118,6 @@ function App() {
             </FormGroup>
           </div>
         </Card>
-        <Button onClick={generateAuldosBroder} icon="function">
-          Aldous-Broder algorythm
-        </Button>
       </Drawer>
     </>
   );
