@@ -7,6 +7,7 @@ import {
   Elevation,
   FormGroup,
   H5,
+  HTMLSelect,
   Navbar,
   NumericInput,
   Position,
@@ -14,8 +15,7 @@ import {
 import React, { useState } from 'react';
 
 import './App.css';
-import { auldosBroderGenerator } from './generator';
-
+import { EGeneratorAlgorythm, getGenerator, SupportedAlgorythms } from './generator';
 import Labyrinth from './labyrinth/Labyrinth';
 import { initLabyrinth, LabyrinthCells } from './labyrinth/Labyrinth.model';
 import { useSettings } from './settingHooks';
@@ -43,6 +43,7 @@ function App() {
   const [settings, setSettings] = useSettings();
   const [drawer, toggleDrawer] = useState(false);
   const [cells, setCells] = useState<LabyrinthCells>([]);
+  const [algorythm, setAlgorythm] = useState<EGeneratorAlgorythm>(SupportedAlgorythms[0].value);
   const toggleHandler = () => toggleDrawer(!drawer);
   const setCellWidth = (CellWidth: number) =>
     setSettings({
@@ -59,9 +60,10 @@ function App() {
       ...settings,
       LineWidth,
     });
-  const generateAuldosBroder = () => {
+  const generateMaze = () => {
     const l = initLabyrinth(height, width);
-    const newCells = auldosBroderGenerator(l);
+    const generator = getGenerator(algorythm);
+    const newCells = generator(l);
     setCells(newCells);
   };
   return (
@@ -70,9 +72,7 @@ function App() {
         <Navbar>
           <Navbar.Group align={Alignment.LEFT}>
             <Navbar.Heading>Maze builder</Navbar.Heading>
-            <Button onClick={generateAuldosBroder} icon="function">
-              Aldous-Broder algorythm
-            </Button>
+            <Button onClick={generateMaze} icon="function" />
           </Navbar.Group>
           <Navbar.Group align={Alignment.RIGHT}>
             <Button icon="print" minimal={true} onClick={print} />
@@ -116,6 +116,12 @@ function App() {
             <FormGroup label="Line width" labelFor="line-width-input" inline={true}>
               <NumericInput id="line-width-input" onValueChange={setLineWidth} value={settings.LineWidth} />
             </FormGroup>
+          </div>
+        </Card>
+        <Card className="algorythm-card">
+          <H5>Algorythm settings</H5>
+          <div className="algorythm-settings">
+            <HTMLSelect fill={true} options={SupportedAlgorythms} value={algorythm} onChange={(e) => setAlgorythm(+e.target.value as EGeneratorAlgorythm)} />
           </div>
         </Card>
       </Drawer>

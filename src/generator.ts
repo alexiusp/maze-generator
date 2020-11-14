@@ -1,7 +1,13 @@
 import { EWallPosition, ICellModel } from './cell/Cell.model';
 import { ILabyrinthModel } from './labyrinth/Labyrinth.model';
 
-export function auldosBroderGenerator(labyrinth: ILabyrinthModel) {
+export enum EGeneratorAlgorythm {
+  AuldosBroder,
+}
+
+export const SupportedAlgorythms = [{ label: 'Auldos-Broder algorythm', value: EGeneratorAlgorythm.AuldosBroder }];
+
+function auldosBroderGenerator(labyrinth: ILabyrinthModel) {
   // copy cells
   const _cells = [];
   for (let y = 0; y < labyrinth.height; y++) {
@@ -83,5 +89,12 @@ export function auldosBroderGenerator(labyrinth: ILabyrinthModel) {
     currentY = nextCellY;
   }
   // return cells
-  return _cells
-};
+  return _cells;
+}
+
+export function getGenerator(algorythm: EGeneratorAlgorythm) {
+  switch (algorythm) {
+    default:
+      return auldosBroderGenerator
+  }
+}
