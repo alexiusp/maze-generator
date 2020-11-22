@@ -17,7 +17,7 @@ import React, { useState } from 'react';
 import './App.css';
 import { EGeneratorAlgorythm, getGenerator, SupportedAlgorythms } from './generator';
 import Labyrinth from './labyrinth/Labyrinth';
-import { initLabyrinth, LabyrinthCells } from './labyrinth/Labyrinth.model';
+import { LabyrinthCells } from './labyrinth/Labyrinth.model';
 import { useSettings } from './settingHooks';
 
 function print() {
@@ -61,9 +61,8 @@ function App() {
       LineWidth,
     });
   const generateMaze = () => {
-    const l = initLabyrinth(height, width);
     const generator = getGenerator(algorythm);
-    const newCells = generator(l);
+    const newCells = generator(height, width);
     setCells(newCells);
   };
   return (

@@ -24,6 +24,10 @@ export function createClosedCell(x: number, y: number) {
   return createCell(x, y, [true, true, true, true]);
 }
 
+export function createOpenCell(x: number, y: number) {
+  return createCell(x, y, [false, false, false, false]);
+}
+
 export function setWall(cell: ICellModel, wallPos: EWallPosition) {
   const walls = [...cell.walls];
   walls[wallPos] = true;
