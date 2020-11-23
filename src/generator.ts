@@ -170,14 +170,12 @@ function ellerGenerator(height: number, width: number) {
       };
       cell.walls[EWallPosition.Top] = row[x].walls[EWallPosition.Bottom];
       cell.walls[EWallPosition.Bottom] = row[x].walls[EWallPosition.Bottom];
-      newRow.push(cell);
-    }
-    // remove set for cells with bottom wall and remove bottom walls
-    for (let x = 0; x < width; x++) {
-      if (newRow[x].walls[EWallPosition.Bottom]) {
-        newRow[x].set = 0;
+      // remove set for cells with bottom wall and remove bottom walls
+      if (cell.walls[EWallPosition.Bottom]) {
+        cell.set = 0;
       }
-      newRow[x].walls[EWallPosition.Bottom] = false;
+      cell.walls[EWallPosition.Bottom] = false;
+      newRow.push(cell);
     }
     row = newRow;
   }
