@@ -1,4 +1,4 @@
-import { EWallPosition, ICellModel } from './cell/Cell.model';
+import { copyCell, EWallPosition, ICellModel } from './cell/Cell.model';
 import { ILabyrinthModel, initClosedLabyrinth, initOpenedLabyrinth, LabyrinthCells } from './labyrinth/Labyrinth.model';
 
 export enum EGeneratorAlgorythm {
@@ -87,6 +87,18 @@ interface IEllersCell extends ICellModel {
   set: number;
 }
 
+function copyRow(row: ICellModel[], setRow?: IEllersCell[]) {
+  const newRow: IEllersCell[] = [];
+  for (let x = 0; x < row.length; x++) {
+    const cell: IEllersCell = {
+      ...copyCell(row[x]),
+      set: setRow ? setRow[x].set : 0,
+    };
+    newRow.push(cell);
+  }
+  return newRow;
+}
+
 function generateVerticalWalls(row: IEllersCell[]) {
   const result = [...row];
   for (let x = 0; x < result.length - 1; x++) {
@@ -109,21 +121,14 @@ function generateVerticalWalls(row: IEllersCell[]) {
 }
 
 function ellerGenerator(height: number, width: number) {
-  const labyrinth: ILabyrinthModel = initOpenedLabyrinth(height, width);
+  const { cells }: ILabyrinthModel = initOpenedLabyrinth(height, width);
   let rowIndex = 0;
   let maxSet = 1;
   const _cells: LabyrinthCells = [];
   // 1. initialize first row
-  let row: IEllersCell[] = [];
-  for (let x = 0; x < width; x++) {
-    const cell: IEllersCell = {
-      x,
-      y: rowIndex,
-      walls: [...labyrinth.cells[rowIndex][x].walls],
-      set: 0,
-    };
-    row.push(cell);
-  }
+  let row: IEllersCell[] = copyRow(cells[rowIndex]);
+  console.log('first row before loop:', [...row]);
+  // iterate over all rows except the last
   while (rowIndex < height - 1) {
     // 2. assign cells to sets
     for (let x = 0; x < width; x++) {
@@ -132,51 +137,45 @@ function ellerGenerator(height: number, width: number) {
         maxSet += 1;
       }
     }
-    // generate vertical walls
+    // generate walls
     row = generateVerticalWalls(row);
-    // generate horizontal walls
-    let connectionPresent = false;
+    // generate connections
+    const setHasConnection: {[set: number]: number} = {};
+    const maxConnections = 1;
     for (let x = 0; x < width; x++) {
-      const createWall = Math.round(Math.random());
-      const isLastInSet = x === width - 1 || row[x].set !== row[x + 1].set;
-      if (!createWall) {
-        connectionPresent = true;
+      const currentSet = row[x].set;
+      if (setHasConnection[currentSet] >= maxConnections) {
+        // if already have enough connections
+        row[x].walls[EWallPosition.Bottom] = true;
       } else {
-        if (connectionPresent || !isLastInSet) {
+        const createWall = Math.round(Math.random());
+        if (!createWall) {
+          setHasConnection[currentSet] = setHasConnection[currentSet] ? setHasConnection[currentSet] + 1 : 1;
+        } else {
           row[x].walls[EWallPosition.Bottom] = true;
         }
-        /*
-        if (!(isLastInSet && !connectionPresent)) {
-          row[x].walls[EWallPosition.Bottom] = true;
-        }
-        */
-      }
-      if (isLastInSet) {
-        // prepare for the next set
-        connectionPresent = false;
       }
     }
     // put created row to results
+    console.log('current row:', rowIndex, [...row]);
     _cells.push(row);
     // create new row
     rowIndex += 1;
     const newRow: IEllersCell[] = [];
     for (let x = 0; x < width; x++) {
       const cell: IEllersCell = {
-        x,
-        y: rowIndex,
-        walls: [...labyrinth.cells[rowIndex][x].walls],
+        ...copyCell(cells[rowIndex][x]),
         set: row[x].set,
       };
       cell.walls[EWallPosition.Top] = row[x].walls[EWallPosition.Bottom];
-      cell.walls[EWallPosition.Bottom] = row[x].walls[EWallPosition.Bottom];
-      // remove set for cells with bottom wall and remove bottom walls
-      if (cell.walls[EWallPosition.Bottom]) {
+      cell.walls[EWallPosition.Bottom] = false;
+      // remove set for cells with top wall
+      if (cell.walls[EWallPosition.Top]) {
         cell.set = 0;
       }
-      cell.walls[EWallPosition.Bottom] = false;
       newRow.push(cell);
     }
+    console.log('new row at the end of loop:', rowIndex, [...newRow]);
     row = newRow;
   }
   // last row generation
@@ -186,7 +185,7 @@ function ellerGenerator(height: number, width: number) {
     const cell: IEllersCell = {
       x,
       y: rowIndex,
-      walls: [...labyrinth.cells[rowIndex][x].walls],
+      walls: [...cells[rowIndex][x].walls],
       set: row[x].set,
     };
     cell.walls[EWallPosition.Top] = row[x].walls[EWallPosition.Top];

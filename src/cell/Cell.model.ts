@@ -20,6 +20,15 @@ export function createCell(x: number, y: number, walls: boolean[] = [false, fals
   return cell;
 }
 
+export function copyCell<T extends ICellModel>(cell: T) {
+  const walls = [...cell.walls];
+  const newCell: T = {
+    ...cell,
+    walls,
+  };
+  return newCell;
+}
+
 export function createClosedCell(x: number, y: number) {
   return createCell(x, y, [true, true, true, true]);
 }
